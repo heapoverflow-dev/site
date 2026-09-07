@@ -1,0 +1,3893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>VAULT 84 // Archival Retro Gaming Repository</title>
+  <meta name="description" content="A curated archive of 1978–1996 classic video games. Play genuine arcade and computer classics in-browser with zero dependencies.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* -------------------------------------------------------------
+       1. DESIGN SYSTEM & CSS VARIABLES
+       Warm Charcoal / Aged Cream / Muted Gold / Terracotta / Olive
+       ------------------------------------------------------------- */
+    :root {
+      --bg-deep: #131210;
+      --bg-surface: #1b1916;
+      --bg-surface-elevated: #23201b;
+      --bg-surface-hover: #2b2823;
+      --bg-card: #1f1c18;
+      --bg-card-border: rgba(198, 153, 71, 0.18);
+      --bg-card-border-hover: rgba(198, 153, 71, 0.45);
+
+      --gold-primary: #c69947;
+      --gold-hover: #dcac55;
+      --gold-dim: #8b6b32;
+      --gold-soft: rgba(198, 153, 71, 0.12);
+
+      --rust-accent: #9e4a36;
+      --rust-dim: #6e3324;
+      --olive-accent: #5e6b4f;
+      --olive-dim: #414a37;
+
+      --text-cream: #ebe4d3;
+      --text-parchment: #cec4ae;
+      --text-muted: #8e836f;
+      --text-faint: #5a5345;
+
+      --font-display: 'Cinzel', Georgia, 'Times New Roman', serif;
+      --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Courier New', Courier, monospace;
+
+      --radius-sm: 3px;
+      --radius-md: 6px;
+      --radius-lg: 10px;
+
+      --shadow-subtle: 0 4px 16px rgba(0, 0, 0, 0.45);
+      --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(198, 153, 71, 0.08);
+      --shadow-modal: 0 24px 64px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(198, 153, 71, 0.25);
+
+      --transition-fast: 0.15s ease;
+      --transition-medium: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* -------------------------------------------------------------
+       2. RESET & BASE STYLES
+       ------------------------------------------------------------- */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg-deep);
+      color: var(--text-cream);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-deep);
+      background-image: 
+        radial-gradient(ellipse at 50% 0%, rgba(198, 153, 71, 0.06) 0%, transparent 70%),
+        linear-gradient(to bottom, rgba(19, 18, 16, 0.8), #131210 300px);
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    /* Subtle CRT rasterline overlay for vintage depth without fatigue */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.14),
+        rgba(0, 0, 0, 0.14) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      opacity: 0.45;
+      z-index: 999;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: inherit;
+    }
+
+    input, select {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    /* Accessibility focus styling */
+    :focus-visible {
+      outline: 2px solid var(--gold-primary);
+      outline-offset: 3px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* -------------------------------------------------------------
+       3. HEADER & NAVIGATION
+       ------------------------------------------------------------- */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(22, 20, 18, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--bg-card-border);
+      transition: border-color var(--transition-fast);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      gap: 20px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #2b261f, #181613);
+      border: 1px solid var(--gold-primary);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+
+    .brand-text h1 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: var(--gold-primary);
+      line-height: 1;
+    }
+
+    .brand-text span {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      display: block;
+      margin-top: 3px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .nav-link {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-parchment);
+      transition: color var(--transition-fast);
+      letter-spacing: 0.04em;
+      padding: 6px 0;
+      position: relative;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--gold-primary);
+    }
+
+    .nav-link.active::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--gold-primary);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .search-box {
+      position: relative;
+      width: 220px;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 38px;
+      padding: 0 34px 0 34px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      color: var(--text-cream);
+      transition: all var(--transition-fast);
+    }
+
+    .search-input:focus {
+      border-color: var(--gold-primary);
+      background: #2a261f;
+      outline: none;
+      box-shadow: 0 0 0 1px var(--gold-primary);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+      display: flex;
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 14px;
+      display: none;
+      line-height: 1;
+      padding: 2px;
+    }
+
+    .search-clear:hover {
+      color: var(--gold-primary);
+    }
+
+    .btn-header {
+      height: 38px;
+      padding: 0 14px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: var(--text-parchment);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .btn-header:hover {
+      background: var(--bg-surface-hover);
+      border-color: var(--gold-primary);
+      color: var(--gold-primary);
+    }
+
+    .btn-header-primary {
+      background: var(--gold-soft);
+      border-color: var(--gold-primary);
+      color: var(--gold-primary);
+    }
+
+    .btn-header-primary:hover {
+      background: var(--gold-primary);
+      color: #161411;
+    }
+
+    .favorites-counter {
+      background: var(--rust-accent);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .mobile-menu-toggle {
+      display: none;
+      width: 40px;
+      height: 40px;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-parchment);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-sm);
+    }
+
+    /* -------------------------------------------------------------
+       4. HERO SECTION (VINTAGE JOURNAL COVERS & DISCOVERY)
+       ------------------------------------------------------------- */
+    .hero-section {
+      padding: 56px 0 44px;
+      border-bottom: 1px solid var(--bg-card-border);
+      position: relative;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .issue-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-primary);
+      background: rgba(198, 153, 71, 0.08);
+      border: 1px solid rgba(198, 153, 71, 0.3);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 20px;
+    }
+
+    .issue-badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: var(--gold-primary);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--gold-primary);
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      line-height: 1.12;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      color: var(--text-cream);
+      margin-bottom: 18px;
+    }
+
+    .hero-title span {
+      color: var(--gold-primary);
+      display: block;
+    }
+
+    .hero-description {
+      font-size: 1.05rem;
+      color: var(--text-parchment);
+      line-height: 1.65;
+      margin-bottom: 28px;
+      max-width: 540px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .btn-hero {
+      height: 46px;
+      padding: 0 22px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all var(--transition-fast);
+      text-transform: uppercase;
+    }
+
+    .btn-hero-primary {
+      background: var(--gold-primary);
+      color: #12110f;
+      border: 1px solid var(--gold-hover);
+    }
+
+    .btn-hero-primary:hover {
+      background: var(--gold-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-hero-secondary {
+      background: var(--bg-surface-elevated);
+      color: var(--text-cream);
+      border: 1px solid var(--bg-card-border);
+    }
+
+    .btn-hero-secondary:hover {
+      border-color: var(--gold-primary);
+      color: var(--gold-primary);
+      background: var(--bg-surface-hover);
+    }
+
+    /* Hero Showcase: Multi-layered Curated Cartridges */
+    .hero-showcase {
+      position: relative;
+    }
+
+    .showcase-frame {
+      background: #171512;
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+    }
+
+    .showcase-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(198, 153, 71, 0.15);
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .showcase-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .featured-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .featured-card:hover {
+      border-color: var(--gold-primary);
+      transform: translateY(-2px);
+    }
+
+    .featured-cover {
+      width: 100%;
+      height: 96px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: #0d0c0b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .featured-cover svg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .featured-name {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-cream);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .featured-meta {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--gold-primary);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Stats strip */
+    .stats-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px dashed rgba(198, 153, 71, 0.18);
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--gold-primary);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* -------------------------------------------------------------
+       5. ARCHIVE TOOLBAR & FILTERS
+       ------------------------------------------------------------- */
+    .archive-section {
+      padding: 44px 0 72px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      color: var(--text-cream);
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
+
+    .section-subtitle {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-family: var(--font-mono);
+    }
+
+    .toolbar {
+      background: var(--bg-surface);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .genre-filters {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .genre-pill {
+      height: 32px;
+      padding: 0 12px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-parchment);
+      transition: all var(--transition-fast);
+    }
+
+    .genre-pill:hover {
+      background: var(--bg-surface-elevated);
+      color: var(--gold-primary);
+    }
+
+    .genre-pill.active {
+      background: var(--gold-soft);
+      border-color: var(--gold-primary);
+      color: var(--gold-primary);
+    }
+
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-left: auto;
+    }
+
+    .sort-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .sort-select {
+      height: 32px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-cream);
+      padding: 0 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .sort-select:focus {
+      outline: none;
+      border-color: var(--gold-primary);
+    }
+
+    .favorites-toggle-btn {
+      height: 32px;
+      padding: 0 12px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-parchment);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all var(--transition-fast);
+    }
+
+    .favorites-toggle-btn.active {
+      background: rgba(158, 74, 54, 0.18);
+      border-color: var(--rust-accent);
+      color: #ff9d85;
+    }
+
+    /* -------------------------------------------------------------
+       6. CATALOG GRID & CARTRIDGE CARDS
+       ------------------------------------------------------------- */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(295px, 1fr));
+      gap: 24px;
+    }
+
+    .game-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-card);
+      transition: transform var(--transition-medium), border-color var(--transition-medium), box-shadow var(--transition-medium);
+      position: relative;
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--bg-card-border-hover);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.65), 0 2px 4px rgba(198, 153, 71, 0.15);
+    }
+
+    .card-banner {
+      position: relative;
+      width: 100%;
+      height: 165px;
+      background: #0f0e0c;
+      overflow: hidden;
+    }
+
+    .card-banner svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .game-card:hover .card-banner svg {
+      transform: scale(1.03);
+    }
+
+    .card-badge-playable {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(19, 18, 16, 0.88);
+      backdrop-filter: blur(4px);
+      border: 1px solid var(--gold-primary);
+      color: var(--gold-primary);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .card-badge-playable::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: #50c878;
+      border-radius: 50%;
+      box-shadow: 0 0 5px #50c878;
+    }
+
+    .card-fav-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 32px;
+      height: 32px;
+      background: rgba(19, 18, 16, 0.88);
+      backdrop-filter: blur(4px);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+    }
+
+    .card-fav-btn:hover {
+      border-color: var(--rust-accent);
+      color: var(--rust-accent);
+    }
+
+    .card-fav-btn.favorited {
+      color: var(--rust-accent);
+      border-color: var(--rust-accent);
+      background: rgba(158, 74, 54, 0.15);
+    }
+
+    .card-body {
+      padding: 16px 18px 18px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .card-meta-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .card-year-platform {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-year {
+      color: var(--gold-primary);
+      font-weight: 700;
+    }
+
+    .card-rating {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      color: var(--gold-hover);
+      font-weight: 700;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-cream);
+      letter-spacing: 0.02em;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--text-parchment);
+      line-height: 1.5;
+      margin-bottom: 16px;
+      flex-grow: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid rgba(198, 153, 71, 0.12);
+      gap: 10px;
+    }
+
+    .card-genre-tag {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .btn-play-card {
+      height: 34px;
+      padding: 0 14px;
+      background: var(--gold-soft);
+      border: 1px solid var(--gold-primary);
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--gold-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all var(--transition-fast);
+      text-transform: uppercase;
+    }
+
+    .btn-play-card:hover {
+      background: var(--gold-primary);
+      color: #12110f;
+    }
+
+    /* Empty catalog state */
+    .empty-state {
+      grid-column: 1 / -1;
+      background: var(--bg-surface);
+      border: 1px dashed var(--bg-card-border);
+      border-radius: var(--radius-md);
+      padding: 64px 24px;
+      text-align: center;
+      display: none;
+    }
+
+    .empty-state-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      color: var(--gold-primary);
+      margin-bottom: 8px;
+    }
+
+    .empty-state-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+
+    /* -------------------------------------------------------------
+       7. EDITORIAL & PRESERVATION SECTION
+       ------------------------------------------------------------- */
+    .archive-editorial {
+      background: #161412;
+      border-top: 1px solid var(--bg-card-border);
+      border-bottom: 1px solid var(--bg-card-border);
+      padding: 56px 0;
+      margin-top: 40px;
+    }
+
+    .editorial-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 32px;
+    }
+
+    .editorial-block {
+      border-left: 2px solid var(--gold-dim);
+      padding-left: 18px;
+    }
+
+    .editorial-num {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--gold-primary);
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .editorial-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-cream);
+      margin-bottom: 10px;
+    }
+
+    .editorial-text {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* -------------------------------------------------------------
+       8. FOOTER
+       ------------------------------------------------------------- */
+    .site-footer {
+      background: #11100e;
+      padding: 40px 0 32px;
+      margin-top: auto;
+      border-top: 1px solid var(--bg-card-border);
+    }
+
+    .footer-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer-brand {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--gold-primary);
+      letter-spacing: 0.08em;
+    }
+
+    .footer-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-family: var(--font-mono);
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      list-style: none;
+      font-size: 0.82rem;
+      color: var(--text-parchment);
+      font-family: var(--font-mono);
+    }
+
+    .footer-links a:hover {
+      color: var(--gold-primary);
+    }
+
+    /* -------------------------------------------------------------
+       9. GAME MODAL & VINTAGE WORKSTATION DISPLAY
+       ------------------------------------------------------------- */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(10, 9, 8, 0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-medium);
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-window {
+      background: #181613;
+      border: 1px solid var(--gold-dim);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-modal);
+      width: 100%;
+      max-width: 860px;
+      max-height: 94vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.97);
+      transition: transform var(--transition-medium);
+    }
+
+    .modal-overlay.open .modal-window {
+      transform: scale(1);
+    }
+
+    .modal-top-bar {
+      background: #211e19;
+      border-bottom: 1px solid var(--bg-card-border);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .modal-game-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-game-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-cream);
+    }
+
+    .modal-game-badge {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      background: var(--gold-soft);
+      border: 1px solid var(--gold-primary);
+      color: var(--gold-primary);
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+    }
+
+    .modal-close-btn {
+      width: 32px;
+      height: 32px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-parchment);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      transition: all var(--transition-fast);
+    }
+
+    .modal-close-btn:hover {
+      background: var(--rust-accent);
+      color: #fff;
+      border-color: var(--rust-accent);
+    }
+
+    /* Screen housing */
+    .modal-screen-container {
+      background: #0d0c0b;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      overflow: hidden;
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 640px;
+      aspect-ratio: 4 / 3;
+      background: #090807;
+      border: 2px solid #2f2a22;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.95);
+    }
+
+    #gameCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      image-rendering: pixelated;
+    }
+
+    /* Screen scanline & vignette emulation */
+    .screen-overlay-effects {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.7);
+      background: linear-gradient(rgba(18, 16, 12, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 4px;
+    }
+
+    /* In-game Pause Overlay */
+    .game-pause-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(14, 13, 11, 0.82);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .pause-badge {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      color: var(--gold-primary);
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .pause-hint {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-parchment);
+    }
+
+    /* Modal bottom dashboard */
+    .modal-dashboard {
+      background: #1b1916;
+      border-top: 1px solid var(--bg-card-border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .game-score-display {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .score-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .score-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .score-val {
+      font-family: var(--font-mono);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--gold-primary);
+      line-height: 1.1;
+    }
+
+    .modal-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-ctrl {
+      height: 36px;
+      padding: 0 14px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-cream);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all var(--transition-fast);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .btn-ctrl:hover {
+      background: var(--bg-surface-hover);
+      border-color: var(--gold-primary);
+      color: var(--gold-primary);
+    }
+
+    .btn-ctrl.btn-accent {
+      background: var(--gold-primary);
+      color: #151310;
+      border-color: var(--gold-hover);
+    }
+
+    .btn-ctrl.btn-accent:hover {
+      background: var(--gold-hover);
+    }
+
+    /* Virtual Touch Controls for Mobile Devices */
+    .virtual-pad {
+      background: #141210;
+      border-top: 1px solid var(--bg-card-border);
+      padding: 12px 16px;
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .dpad-cluster {
+      display: grid;
+      grid-template-columns: repeat(3, 44px);
+      grid-template-rows: repeat(3, 44px);
+      gap: 4px;
+    }
+
+    .v-btn {
+      background: #25221c;
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-cream);
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .v-btn:active {
+      background: var(--gold-primary);
+      color: #131210;
+    }
+
+    .v-btn.d-up { grid-column: 2; grid-row: 1; }
+    .v-btn.d-left { grid-column: 1; grid-row: 2; }
+    .v-btn.d-center { grid-column: 2; grid-row: 2; opacity: 0.3; pointer-events: none; }
+    .v-btn.d-right { grid-column: 3; grid-row: 2; }
+    .v-btn.d-down { grid-column: 2; grid-row: 3; }
+
+    .action-cluster {
+      display: flex;
+      gap: 12px;
+    }
+
+    .v-action-btn {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: #2b2720;
+      border: 2px solid var(--gold-primary);
+      color: var(--gold-primary);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+    }
+
+    .v-action-btn:active {
+      background: var(--gold-primary);
+      color: #131210;
+    }
+
+    .modal-instructions {
+      padding: 10px 20px;
+      background: #141311;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(198, 153, 71, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+    }
+
+    .instructions-keys {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .key-badge {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--bg-card-border);
+      padding: 1px 6px;
+      border-radius: 2px;
+      color: var(--text-parchment);
+    }
+
+    /* Toast Notifications */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1200;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: #23201a;
+      border: 1px solid var(--gold-primary);
+      border-radius: var(--radius-sm);
+      padding: 12px 18px;
+      color: var(--text-cream);
+      font-size: 0.85rem;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      pointer-events: auto;
+    }
+
+    @keyframes toastIn {
+      from { transform: translateY(12px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* -------------------------------------------------------------
+       10. RESPONSIVE BREAKPOINTS
+       ------------------------------------------------------------- */
+    @media (max-width: 1024px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      .editorial-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      .search-box {
+        width: 180px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      .mobile-menu-toggle {
+        display: flex;
+      }
+      .search-box {
+        display: none;
+      }
+      .search-box.mobile-open {
+        display: block;
+        position: absolute;
+        top: 72px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        background: #171512;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--bg-card-border);
+      }
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .toolbar-right {
+        margin-left: 0;
+        justify-content: space-between;
+      }
+      .virtual-pad {
+        display: flex;
+      }
+      .modal-window {
+        max-height: 98vh;
+      }
+      .modal-screen-container {
+        padding: 6px;
+      }
+      .modal-dashboard {
+        padding: 10px 14px;
+      }
+      .modal-instructions {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-title {
+        font-size: 1.85rem;
+      }
+      .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .stats-strip {
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      .stat-item {
+        width: 45%;
+      }
+      .modal-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================================
+       HEADER
+       ========================================================= -->
+  <header class="site-header" id="siteHeader">
+    <div class="container header-inner">
+      <a href="#" class="brand-logo" aria-label="Vault 84 Home">
+        <div class="brand-mark">
+          <!-- Cartridge / Microchip icon -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c69947" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="18" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="8" y2="17"></line>
+            <line x1="12" y1="21" x2="12" y2="17"></line>
+            <line x1="16" y1="21" x2="16" y2="17"></line>
+            <circle cx="12" cy="9" r="2"></circle>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>VAULT 84</h1>
+          <span>Archival Repository</span>
+        </div>
+      </a>
+
+      <nav aria-label="Primary Navigation">
+        <ul class="nav-links">
+          <li><a href="#catalogSection" class="nav-link active">Catalog</a></li>
+          <li><a href="#curatedShowcase" class="nav-link">Showcase</a></li>
+          <li><a href="#editorialSection" class="nav-link">Chronicle</a></li>
+          <li><a href="#" id="navFavoritesBtn" class="nav-link">Favorites</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <!-- Live Search -->
+        <div class="search-box" id="searchContainer">
+          <span class="search-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search archive (e.g. Snake)..." aria-label="Search games catalog">
+          <button id="searchClearBtn" class="search-clear" title="Clear search">&times;</button>
+        </div>
+
+        <!-- Random Game button -->
+        <button id="randomGameBtn" class="btn-header" title="Load a random game into player">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 3 21 3 21 8"></polyline>
+            <line x1="4" y1="20" x2="21" y2="3"></line>
+            <polyline points="21 16 21 21 16 21"></polyline>
+            <line x1="15" y1="15" x2="21" y2="21"></line>
+            <line x1="4" y1="4" x2="9" y2="9"></line>
+          </svg>
+          <span>Random</span>
+        </button>
+
+        <!-- Quick Favorites header toggle -->
+        <button id="headerFavToggle" class="btn-header" title="Filter to saved favorites">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+          <span class="favorites-counter" id="favCounterBadge">0</span>
+        </button>
+
+        <!-- Mobile search toggle -->
+        <button class="mobile-menu-toggle" id="mobileSearchBtn" aria-label="Toggle mobile search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       HERO SECTION
+       ========================================================= -->
+  <main>
+    <section class="hero-section">
+      <div class="container hero-grid">
+        <div class="hero-text-block">
+          <div class="issue-badge">Vol. IV // Archival Preservation Series (1978–1996)</div>
+          <h2 class="hero-title">
+            The Golden Age of <span>Silicon &amp; Dreams.</span>
+          </h2>
+          <p class="hero-description">
+            A meticulously maintained historical repository of early digital gaming. Every executable title is driven by a bespoke, clean in-browser engine crafted to replicate authentic CRT clock-cycles, tactile physics, and chiptune sound synthesis.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#catalogSection" class="btn-hero btn-hero-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              Explore Collection
+            </a>
+            <button id="heroQuickPlayBtn" class="btn-hero btn-hero-secondary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polygon points="10 8 16 12 10 16 10 8"></polygon>
+              </svg>
+              Instant Play: Viper '99
+            </button>
+          </div>
+
+          <div class="stats-strip">
+            <div class="stat-item">
+              <span class="stat-value">24</span>
+              <span class="stat-label">Archived Master Works</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">5</span>
+              <span class="stat-label">Interactive Cores</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">60 FPS</span>
+              <span class="stat-label">Hardware Emulation</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">0 KB</span>
+              <span class="stat-label">External Dependencies</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Curated Showcase Frame -->
+        <div class="hero-showcase" id="curatedShowcase">
+          <div class="showcase-frame">
+            <div class="showcase-header">
+              <span>Curator's Spotlight</span>
+              <span>Hardware Tested</span>
+            </div>
+            <div class="showcase-content">
+              <!-- Showcase Item 1: Viper 99 -->
+              <div class="featured-card" onclick="GameApp.openGame('viper99')">
+                <div class="featured-cover" id="heroThumbViper"></div>
+                <div class="featured-name">Viper '99</div>
+                <div class="featured-meta">
+                  <span>1983 • ARCADE</span>
+                  <span>4.8 ★</span>
+                </div>
+              </div>
+
+              <!-- Showcase Item 2: Starfall Patrol -->
+              <div class="featured-card" onclick="GameApp.openGame('starfall')">
+                <div class="featured-cover" id="heroThumbStarfall"></div>
+                <div class="featured-name">Starfall Patrol</div>
+                <div class="featured-meta">
+                  <span>1981 • VECTOR</span>
+                  <span>4.9 ★</span>
+                </div>
+              </div>
+
+              <!-- Showcase Item 3: Brick Bastion -->
+              <div class="featured-card" onclick="GameApp.openGame('brick')">
+                <div class="featured-cover" id="heroThumbBrick"></div>
+                <div class="featured-name">Brick Bastion</div>
+                <div class="featured-meta">
+                  <span>1986 • C64</span>
+                  <span>4.7 ★</span>
+                </div>
+              </div>
+
+              <!-- Showcase Item 4: Cyber Pong -->
+              <div class="featured-card" onclick="GameApp.openGame('pong')">
+                <div class="featured-cover" id="heroThumbPong"></div>
+                <div class="featured-name">Cyber Pong</div>
+                <div class="featured-meta">
+                  <span>1978 • TABLE</span>
+                  <span>4.6 ★</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         CATALOG SECTION
+         ========================================================= -->
+    <section class="archive-section" id="catalogSection">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h3 class="section-title">The Master Vault</h3>
+            <p class="section-subtitle" id="catalogCounterText">Displaying 24 historical digital artifacts</p>
+          </div>
+        </div>
+
+        <!-- Toolbar: Genres, Sorting & Favorites Filter -->
+        <div class="toolbar">
+          <div class="genre-filters" id="genreFiltersContainer">
+            <button class="genre-pill active" data-genre="all">All Titles</button>
+            <button class="genre-pill" data-genre="arcade">Arcade</button>
+            <button class="genre-pill" data-genre="action">Action</button>
+            <button class="genre-pill" data-genre="puzzle">Puzzle</button>
+            <button class="genre-pill" data-genre="scifi">Sci-Fi</button>
+            <button class="genre-pill" data-genre="strategy">Strategy</button>
+            <button class="genre-pill" data-genre="racing">Racing</button>
+            <button class="genre-pill" data-genre="platformer">Platformer</button>
+          </div>
+
+          <div class="toolbar-right">
+            <button id="toolbarFavFilterBtn" class="favorites-toggle-btn" title="Toggle favorites filter">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
+              <span>Favorites Only</span>
+            </button>
+
+            <div class="sort-control">
+              <label for="sortSelect">Sort:</label>
+              <select id="sortSelect" class="sort-select" aria-label="Sort catalog games">
+                <option value="rating">Rating (Highest)</option>
+                <option value="year-asc">Year (Oldest)</option>
+                <option value="year-desc">Year (Newest)</option>
+                <option value="alpha">Title (A–Z)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Game Cards Grid -->
+        <div class="games-grid" id="gamesGrid">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+          <h4 class="empty-state-title">No Archival Records Found</h4>
+          <p class="empty-state-desc">No titles match your active filters or search terms.</p>
+          <button id="resetFiltersBtn" class="btn-ctrl btn-accent">Reset All Filters</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         CHRONICLE & ARCHIVAL ESSAYS
+         ========================================================= -->
+    <section class="archive-editorial" id="editorialSection">
+      <div class="container">
+        <div class="editorial-grid">
+          <div class="editorial-block">
+            <div class="editorial-num">Archival Note #01</div>
+            <h4 class="editorial-title">Phosphor Decay &amp; Scanlines</h4>
+            <p class="editorial-text">
+              Early CRT monitors exhibited a unique temporal persistence. Phosphor glow lingering for milliseconds softened sharp pixel boundaries and created an organic warmth lost in high-DPI panels.
+            </p>
+          </div>
+
+          <div class="editorial-block">
+            <div class="editorial-num">Archival Note #02</div>
+            <h4 class="editorial-title">The Programmable Sound Generator</h4>
+            <p class="editorial-text">
+              From the General Instrument AY-3-8910 to Commodore’s SID 6581, early game audio was pure mathematics: square wave oscillators, noise registers, and envelope generators creating enduring melody.
+            </p>
+          </div>
+
+          <div class="editorial-block">
+            <div class="editorial-num">Archival Note #03</div>
+            <h4 class="editorial-title">Uncompromising Mechanics</h4>
+            <p class="editorial-text">
+              Born from coin-operated economics, early video games expected precision. There were no mid-level checkpoints, no tutorials—only the player's reflexes and spatial intuition against pure algorithmic logic.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =========================================================
+       FOOTER
+       ========================================================= -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div>
+        <div class="footer-brand">VAULT 84 // DIGITAL CONSERVANCY</div>
+        <p class="footer-desc">Stand-alone single-file frontend architecture. Zero external trackers.</p>
+      </div>
+      <ul class="footer-links">
+        <li><a href="#siteHeader">Back to Top</a></li>
+        <li><a href="#catalogSection">Catalog</a></li>
+        <li><a href="javascript:void(0)" onclick="GameApp.openRandomGame()">Random Core</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       GAME MODAL & RUNTIME WORKSTATION
+       ========================================================= -->
+  <div class="modal-overlay" id="gameModal" role="dialog" aria-modal="true" aria-labelledby="modalGameTitle">
+    <div class="modal-window">
+      <!-- Modal Header -->
+      <div class="modal-top-bar">
+        <div class="modal-game-info">
+          <span class="modal-game-badge" id="modalGamePlatform">RETRO CORE</span>
+          <h3 class="modal-game-title" id="modalGameTitle">Game Title</h3>
+          <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--gold-primary);" id="modalGameYear">(1984)</span>
+        </div>
+        <button class="modal-close-btn" id="modalCloseBtn" aria-label="Close Game Modal" title="Close (Esc)">&times;</button>
+      </div>
+
+      <!-- Canvas Arcade Screen -->
+      <div class="modal-screen-container">
+        <div class="canvas-wrapper">
+          <canvas id="gameCanvas" width="640" height="480"></canvas>
+          <div class="screen-overlay-effects"></div>
+
+          <!-- Pause Overlay -->
+          <div class="game-pause-overlay" id="gamePauseOverlay">
+            <div class="pause-badge">SYSTEM PAUSED</div>
+            <div class="pause-hint">Press [P] or click Resume to continue</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Virtual Controls (Auto displays on touch devices) -->
+      <div class="virtual-pad" id="virtualPad">
+        <div class="dpad-cluster">
+          <button class="v-btn d-up" id="vBtnUp" aria-label="Up">▲</button>
+          <button class="v-btn d-left" id="vBtnLeft" aria-label="Left">◀</button>
+          <div class="v-btn d-center"></div>
+          <button class="v-btn d-right" id="vBtnRight" aria-label="Right">▶</button>
+          <button class="v-btn d-down" id="vBtnDown" aria-label="Down">▼</button>
+        </div>
+        <div class="action-cluster">
+          <button class="v-action-btn" id="vBtnActionA" aria-label="Action A">A</button>
+          <button class="v-action-btn" id="vBtnActionB" aria-label="Action B / Space">B</button>
+        </div>
+      </div>
+
+      <!-- Controls Dashboard -->
+      <div class="modal-dashboard">
+        <div class="game-score-display">
+          <div class="score-box">
+            <span class="score-label">CURRENT SCORE</span>
+            <span class="score-val" id="hudScore">00000</span>
+          </div>
+          <div class="score-box">
+            <span class="score-label">HIGH ARCHIVE</span>
+            <span class="score-val" id="hudHighScore">00000</span>
+          </div>
+        </div>
+
+        <div class="modal-controls">
+          <button class="btn-ctrl" id="btnAudioToggle" title="Toggle synthesized sound effects">
+            <span id="audioIcon">🔊 Sound: ON</span>
+          </button>
+          <button class="btn-ctrl" id="btnPauseGame">Pause (P)</button>
+          <button class="btn-ctrl btn-accent" id="btnRestartGame">Restart (R)</button>
+        </div>
+      </div>
+
+      <!-- Keyboard Instructions Bar -->
+      <div class="modal-instructions">
+        <div class="instructions-keys" id="hudKeyInstructions">
+          <span>Controls:</span>
+          <span class="key-badge">Arrows / WASD</span>
+          <span class="key-badge">Space: Action / Shoot</span>
+          <span class="key-badge">P: Pause</span>
+          <span class="key-badge">Esc: Exit</span>
+        </div>
+        <div id="modalEngineStatus">Core Status: ONLINE (60 Hz)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- =========================================================
+       JAVASCRIPT ARCHITECTURE
+       ========================================================= -->
+  <script>
+    /**
+     * VAULT 84 ARCHIVAL ENGINE
+     * Architecture Modules:
+     * 1. AudioSynthesizer (Web Audio API Retro Sound Effects)
+     * 2. GamesDatabase (24 rich retro game definitions + SVG artwork generators)
+     * 3. GameEngines (Viper 99 Snake, Starfall Space Shooter, Brick Bastion Breakout, Cyber Pong, Crypt Miner, Terminal Lore)
+     * 4. State & Filtering Controller
+     * 5. Modal & UI Controller
+     */
+
+    // -------------------------------------------------------------
+    // 1. SOUND SYNTHESIZER (Pure Web Audio API, Zero external audio)
+    // -------------------------------------------------------------
+    const RetroAudio = {
+      ctx: null,
+      muted: false,
+
+      init() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            this.ctx = new AudioContextClass();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+
+      toggleMute() {
+        this.muted = !this.muted;
+        return !this.muted;
+      },
+
+      playBeep(freq = 440, duration = 0.08, type = 'square', gainValue = 0.08) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          
+          gain.gain.setValueAtTime(gainValue, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {
+          // Audio safe guard
+        }
+      },
+
+      // Preset chiptune events
+      blip() { this.playBeep(320, 0.05, 'square', 0.05); },
+      point() { this.playBeep(640, 0.1, 'triangle', 0.1); },
+      laser() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.12);
+          gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.12);
+        } catch(e) {}
+      },
+      explode() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+          osc.frequency.linearRampToValueAtTime(30, this.ctx.currentTime + 0.25);
+          gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.25);
+        } catch(e) {}
+      },
+      powerup() {
+        this.playBeep(440, 0.08, 'square', 0.08);
+        setTimeout(() => this.playBeep(660, 0.08, 'square', 0.08), 80);
+        setTimeout(() => this.playBeep(880, 0.15, 'square', 0.08), 160);
+      }
+    };
+
+    // -------------------------------------------------------------
+    // 2. RETRO GAMES DATABASE (24 Games with embedded SVGs)
+    // -------------------------------------------------------------
+    const GAMES_DATA = [
+      {
+        id: 'viper99',
+        title: "Viper '99",
+        year: 1983,
+        genre: 'arcade',
+        genreLabel: 'Arcade',
+        platform: 'CRT Arcade',
+        rating: 4.8,
+        isPlayableCore: true,
+        engineKey: 'snake',
+        description: 'Navigate the high-voltage phosphor grid, consume volatile telemetry packets, and manage an ever-expanding electromagnetic tail.',
+        accentColor: '#c69947',
+        svgTheme: 'grid'
+      },
+      {
+        id: 'starfall',
+        title: 'Starfall Patrol',
+        year: 1981,
+        genre: 'scifi',
+        genreLabel: 'Sci-Fi',
+        platform: 'Vector Arcade',
+        rating: 4.9,
+        isPlayableCore: true,
+        engineKey: 'shooter',
+        description: 'Command the vanguard interceptor against swarms of relentless extraterrestrial dreadnoughts across turbulent asteroid corridors.',
+        accentColor: '#9e4a36',
+        svgTheme: 'space'
+      },
+      {
+        id: 'brick',
+        title: 'Brick Bastion',
+        year: 1986,
+        genre: 'arcade',
+        genreLabel: 'Arcade',
+        platform: 'Commodore 64',
+        rating: 4.7,
+        isPlayableCore: true,
+        engineKey: 'breakout',
+        description: 'Shatter reinforced quartz perimeter walls with calibrated deflection angles and high-velocity kinetic tungsten spheres.',
+        accentColor: '#5e6b4f',
+        svgTheme: 'brick'
+      },
+      {
+        id: 'pong',
+        title: 'Cyber Pong 1978',
+        year: 1978,
+        genre: 'arcade',
+        genreLabel: 'Arcade',
+        platform: 'Home Console',
+        rating: 4.6,
+        isPlayableCore: true,
+        engineKey: 'pong',
+        description: 'The primordial twin-paddle trial. Test your reflexes against an adaptive electronic sparring algorithm at escalating velocities.',
+        accentColor: '#8e836f',
+        svgTheme: 'pong'
+      },
+      {
+        id: 'cryptminer',
+        title: 'Crypt Miner: 1989',
+        year: 1989,
+        genre: 'puzzle',
+        genreLabel: 'Puzzle',
+        platform: 'MS-DOS',
+        rating: 4.7,
+        isPlayableCore: true,
+        engineKey: 'miner',
+        description: 'Survey subterranean chambers and deduce hidden volatile plasma cavities through numerical telemetry without triggering cave-ins.',
+        accentColor: '#b38a4a',
+        svgTheme: 'mine'
+      },
+      {
+        id: 'chronos',
+        title: 'Chronos Chronology',
+        year: 1993,
+        genre: 'platformer',
+        genreLabel: 'Platformer',
+        platform: 'SNES 16-Bit',
+        rating: 4.9,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Manipulate temporal friction to traverse ruined brass steam metropolises and restore the grand celestial astronomical clock.',
+        accentColor: '#c69947',
+        svgTheme: 'clock'
+      },
+      {
+        id: 'aethelgard',
+        title: 'Aethelgard: Obsidian Gate',
+        year: 1991,
+        genre: 'action',
+        genreLabel: 'Action',
+        platform: 'Sega Genesis',
+        rating: 4.8,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Wield the runic claymore through labyrinthine dungeons crawling with chthonic abominations and forgotten kings.',
+        accentColor: '#9e4a36',
+        svgTheme: 'sword'
+      },
+      {
+        id: 'turbof1',
+        title: 'Formula Turbo 88',
+        year: 1988,
+        genre: 'racing',
+        genreLabel: 'Racing',
+        platform: 'Arcade Cabinet',
+        rating: 4.5,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'A 750-horsepower turbocharged sprint through rain-slicked European grand prix circuits with manual clutch mechanics.',
+        accentColor: '#9e4a36',
+        svgTheme: 'car'
+      },
+      {
+        id: 'dungeonarch',
+        title: 'Dungeon Architect',
+        year: 1992,
+        genre: 'strategy',
+        genreLabel: 'Strategy',
+        platform: 'Amiga 500',
+        rating: 4.7,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Design brutal subterranean labyrinths, plant cunning spear pits, and safeguard your dragon vaults from greedy crusaders.',
+        accentColor: '#5e6b4f',
+        svgTheme: 'dungeon'
+      },
+      {
+        id: 'aerophantom',
+        title: 'Aero Phantom 1944',
+        year: 1990,
+        genre: 'action',
+        genreLabel: 'Action',
+        platform: 'Neo-Geo MVS',
+        rating: 4.9,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Vertical-scrolling aerial supremacy over stormy archipelagos with devastating carpet bomb barrages and prototype interceptors.',
+        accentColor: '#8e836f',
+        svgTheme: 'plane'
+      },
+      {
+        id: 'gridlock',
+        title: 'Gridlock Tactics',
+        year: 1994,
+        genre: 'strategy',
+        genreLabel: 'Strategy',
+        platform: 'MS-DOS',
+        rating: 4.6,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Turn-based squad commanding in vacuum-sealed orbital defense satellites against rogue industrial combat automatons.',
+        accentColor: '#c69947',
+        svgTheme: 'hex'
+      },
+      {
+        id: 'solaris',
+        title: 'Solaris Odyssey',
+        year: 1984,
+        genre: 'scifi',
+        genreLabel: 'Sci-Fi',
+        platform: 'Atari 800',
+        rating: 4.4,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Chart unmapped solar sectors, negotiate fuel treaties with merchant flotillas, and slingshot around dying supernovas.',
+        accentColor: '#c69947',
+        svgTheme: 'planet'
+      },
+      {
+        id: 'shinobi',
+        title: 'Shadow Shinobi IV',
+        year: 1989,
+        genre: 'action',
+        genreLabel: 'Action',
+        platform: 'Master System',
+        rating: 4.8,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Scale moonlit feudal fortress walls armed with shurikens, smoke canisters, and the mythical whisper blade.',
+        accentColor: '#9e4a36',
+        svgTheme: 'ninja'
+      },
+      {
+        id: 'subterranea',
+        title: 'Subterranea 2000',
+        year: 1987,
+        genre: 'platformer',
+        genreLabel: 'Platformer',
+        platform: 'ZX Spectrum',
+        rating: 4.3,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'A lone miner navigates radioactive cavern biomes to salvage glowing deuterium fuel rods before air supply depletes.',
+        accentColor: '#5e6b4f',
+        svgTheme: 'cave'
+      },
+      {
+        id: 'monaco',
+        title: 'Grand Prix Riviera',
+        year: 1991,
+        genre: 'racing',
+        genreLabel: 'Racing',
+        platform: 'Sega Genesis',
+        rating: 4.7,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Master tire degradation, gearbox ratios, and blistering hairpin turns along the cliffside coastal roads of Monaco.',
+        accentColor: '#9e4a36',
+        svgTheme: 'flag'
+      },
+      {
+        id: 'alchemy',
+        title: 'Alchemy & Arcana',
+        year: 1995,
+        genre: 'puzzle',
+        genreLabel: 'Puzzle',
+        platform: 'Game Boy',
+        rating: 4.8,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Synthesize volatile reagents of mercury, sulfur, and brimstone across a moving alchemical matrix to manifest philosopher gold.',
+        accentColor: '#c69947',
+        svgTheme: 'potion'
+      },
+      {
+        id: 'ironvanguard',
+        title: 'Iron Vanguard',
+        year: 1985,
+        genre: 'action',
+        genreLabel: 'Action',
+        platform: 'Arcade Cabinet',
+        rating: 4.6,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Heavy mechanized siege crawlers clash in scorched industrial frontiers. Blast through pillboxes and armored trains.',
+        accentColor: '#5e6b4f',
+        svgTheme: 'tank'
+      },
+      {
+        id: 'vectorvoid',
+        title: 'Vector Void',
+        year: 1982,
+        genre: 'scifi',
+        genreLabel: 'Sci-Fi',
+        platform: 'Vectrex',
+        rating: 4.5,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Hypnotic true-vector geometric wireframe dogfights deep within the pulsating core of an alien mainframe.',
+        accentColor: '#c69947',
+        svgTheme: 'vector'
+      },
+      {
+        id: 'runemaster',
+        title: "Runemaster's Trial",
+        year: 1992,
+        genre: 'puzzle',
+        genreLabel: 'Puzzle',
+        platform: 'SNES 16-Bit',
+        rating: 4.7,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Align ancient Nordic glyphs by elemental resonance before the biting winter frost overtakes the sacred hearth.',
+        accentColor: '#8e836f',
+        svgTheme: 'rune'
+      },
+      {
+        id: 'drifthorizon',
+        title: 'Drift Horizon 96',
+        year: 1996,
+        genre: 'racing',
+        genreLabel: 'Racing',
+        platform: '32-Bit Arcade',
+        rating: 4.8,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Midnight downhill touge racing across mist-shrouded mountain passes. Countersteer with surgical precision.',
+        accentColor: '#9e4a36',
+        svgTheme: 'drift'
+      },
+      {
+        id: 'oakhaven',
+        title: 'Siege of Oakhaven',
+        year: 1990,
+        genre: 'strategy',
+        genreLabel: 'Strategy',
+        platform: 'Amiga 1200',
+        rating: 4.6,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Direct siege catapult batteries, ration city grain silos, and repel trebuchet bombardments during a three-year blockade.',
+        accentColor: '#5e6b4f',
+        svgTheme: 'castle'
+      },
+      {
+        id: 'cosmiccargo',
+        title: 'Cosmic Cargo 1983',
+        year: 1983,
+        genre: 'scifi',
+        genreLabel: 'Sci-Fi',
+        platform: 'Apple II',
+        rating: 4.4,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Transport exotic minerals through perilous interplanetary customs lanes while avoiding planetary raiders.',
+        accentColor: '#c69947',
+        svgTheme: 'cargo'
+      },
+      {
+        id: 'phantomblade',
+        title: 'Phantom Blade',
+        year: 1988,
+        genre: 'platformer',
+        genreLabel: 'Platformer',
+        platform: 'NES 8-Bit',
+        rating: 4.9,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'A perilous gothic pilgrimage through gargoyle-crowned belfries and catacombs to vanquish the ancestral crimson count.',
+        accentColor: '#9e4a36',
+        svgTheme: 'gothic'
+      },
+      {
+        id: 'auraknight',
+        title: 'Aura Knight',
+        year: 1994,
+        genre: 'action',
+        genreLabel: 'Action',
+        platform: 'PC Engine',
+        rating: 4.7,
+        isPlayableCore: false,
+        engineKey: 'terminal',
+        description: 'Focus prism energy through crystalline battle armor to deflect boss fire and reclaim the floating celestial citadel.',
+        accentColor: '#c69947',
+        svgTheme: 'shield'
+      }
+    ];
+
+    // -------------------------------------------------------------
+    // SVG ARTWORK GENERATOR (100% self-contained visual covers)
+    // -------------------------------------------------------------
+    function generateRetroSVG(theme, title, year, accent) {
+      // Atmospheric SVG palette based on theme
+      const bgDark = '#141210';
+      const secondary = '#2a261f';
+
+      let innerArt = '';
+
+      switch (theme) {
+        case 'grid': // Snake
+          innerArt = `
+            <defs>
+              <pattern id="pat-grid" width="16" height="16" patternUnits="userSpaceOnUse">
+                <path d="M 16 0 L 0 0 0 16" fill="none" stroke="rgba(198,153,71,0.12)" stroke-width="1"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#pat-grid)" />
+            <path d="M 30 110 L 80 110 L 80 60 L 170 60 L 170 120 L 230 120" fill="none" stroke="${accent}" stroke-width="8" stroke-linecap="square"/>
+            <rect x="235" y="115" width="10" height="10" fill="#ede6d6"/>
+            <circle cx="260" cy="80" r="7" fill="#9e4a36"/>
+          `;
+          break;
+        case 'space': // Starfall
+          innerArt = `
+            <circle cx="50" cy="30" r="1.5" fill="#fff" opacity="0.6"/>
+            <circle cx="120" cy="80" r="1" fill="#fff" opacity="0.8"/>
+            <circle cx="240" cy="40" r="2" fill="#c69947" opacity="0.5"/>
+            <polygon points="150,45 165,75 135,75" fill="none" stroke="${accent}" stroke-width="3"/>
+            <line x1="150" y1="40" x2="150" y2="15" stroke="#e8e2d2" stroke-width="2" stroke-dasharray="4,4"/>
+            <polygon points="80,120 100,105 120,120 100,135" fill="none" stroke="#5e6b4f" stroke-width="2"/>
+            <polygon points="200,110 220,95 240,110 220,125" fill="none" stroke="#5e6b4f" stroke-width="2"/>
+          `;
+          break;
+        case 'brick': // Breakout
+          innerArt = `
+            <g fill="${accent}" opacity="0.85">
+              <rect x="40" y="30" width="36" height="12" rx="1"/>
+              <rect x="82" y="30" width="36" height="12" rx="1"/>
+              <rect x="124" y="30" width="36" height="12" rx="1"/>
+              <rect x="166" y="30" width="36" height="12" rx="1"/>
+              <rect x="208" y="30" width="36" height="12" rx="1"/>
+              <rect x="61" y="48" width="36" height="12" rx="1" fill="#9e4a36"/>
+              <rect x="103" y="48" width="36" height="12" rx="1" fill="#9e4a36"/>
+              <rect x="145" y="48" width="36" height="12" rx="1" fill="#9e4a36"/>
+              <rect x="187" y="48" width="36" height="12" rx="1" fill="#9e4a36"/>
+            </g>
+            <circle cx="135" cy="95" r="5" fill="#ebe4d3"/>
+            <rect x="105" y="130" width="60" height="8" rx="2" fill="${accent}"/>
+          `;
+          break;
+        case 'pong': // Pong
+          innerArt = `
+            <line x1="150" y1="10" x2="150" y2="155" stroke="rgba(206,196,174,0.25)" stroke-width="2" stroke-dasharray="8,6"/>
+            <rect x="35" y="60" width="8" height="42" fill="${accent}" rx="1"/>
+            <rect x="257" y="85" width="8" height="42" fill="${accent}" rx="1"/>
+            <rect x="185" y="76" width="7" height="7" fill="#ebe4d3"/>
+          `;
+          break;
+        case 'mine': // Minesweeper
+          innerArt = `
+            <g stroke="rgba(198,153,71,0.2)" stroke-width="1">
+              <rect x="60" y="30" width="30" height="30" fill="#1b1916"/>
+              <rect x="95" y="30" width="30" height="30" fill="#24211c"/>
+              <rect x="130" y="30" width="30" height="30" fill="#1b1916"/>
+              <rect x="165" y="30" width="30" height="30" fill="#24211c"/>
+              <rect x="200" y="30" width="30" height="30" fill="#1b1916"/>
+              <rect x="95" y="65" width="30" height="30" fill="#1b1916"/>
+              <rect x="130" y="65" width="30" height="30" fill="#2b2720"/>
+              <rect x="165" y="65" width="30" height="30" fill="#1b1916"/>
+            </g>
+            <circle cx="145" cy="80" r="8" fill="${accent}"/>
+            <line x1="145" y1="68" x2="145" y2="92" stroke="${accent}" stroke-width="2"/>
+            <line x1="133" y1="80" x2="157" y2="80" stroke="${accent}" stroke-width="2"/>
+            <text x="110" y="52" fill="#50c878" font-family="monospace" font-weight="bold" font-size="16">1</text>
+            <text x="180" y="52" fill="#9e4a36" font-family="monospace" font-weight="bold" font-size="16">2</text>
+          `;
+          break;
+        case 'car': case 'flag': case 'drift':
+          innerArt = `
+            <path d="M 20 130 Q 150 70 280 130" stroke="rgba(206,196,174,0.3)" stroke-width="2" fill="none"/>
+            <path d="M 60 130 Q 150 85 240 130" stroke="${accent}" stroke-width="1" stroke-dasharray="6,4" fill="none"/>
+            <polygon points="120,105 180,105 195,122 105,122" fill="${accent}"/>
+            <rect x="130" y="96" width="40" height="10" fill="#ebe4d3" opacity="0.8"/>
+            <circle cx="118" cy="122" r="7" fill="#0d0c0b" stroke="${accent}" stroke-width="2"/>
+            <circle cx="182" cy="122" r="7" fill="#0d0c0b" stroke="${accent}" stroke-width="2"/>
+          `;
+          break;
+        case 'sword': case 'gothic':
+          innerArt = `
+            <polygon points="150,20 156,110 150,118 144,110" fill="${accent}"/>
+            <rect x="130" y="112" width="40" height="6" rx="2" fill="#ebe4d3"/>
+            <rect x="147" y="118" width="6" height="24" rx="1" fill="#8e836f"/>
+            <circle cx="150" cy="146" r="5" fill="${accent}"/>
+            <path d="M 110 70 Q 150 40 190 70" stroke="rgba(198,153,71,0.3)" stroke-width="2" fill="none"/>
+          `;
+          break;
+        default: // Stylized geometric retro emblem
+          innerArt = `
+            <circle cx="150" cy="80" r="46" fill="none" stroke="${accent}" stroke-width="2" stroke-dasharray="4,4"/>
+            <polygon points="150,45 185,100 115,100" fill="none" stroke="${accent}" stroke-width="3"/>
+            <circle cx="150" cy="82" r="9" fill="${accent}"/>
+            <line x1="90" y1="135" x2="210" y2="135" stroke="rgba(206,196,174,0.3)" stroke-width="2"/>
+          `;
+      }
+
+      return `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 165" width="100%" height="100%">
+          <rect width="100%" height="100%" fill="${bgDark}"/>
+          <!-- Subtle frame pattern -->
+          <rect x="6" y="6" width="288" height="153" fill="none" stroke="rgba(198, 153, 71, 0.15)" stroke-width="1"/>
+          ${innerArt}
+          <!-- Label strip on art -->
+          <rect x="6" y="139" width="288" height="20" fill="rgba(18, 16, 13, 0.88)"/>
+          <text x="14" y="153" fill="#8e836f" font-family="'JetBrains Mono', monospace" font-size="9" letter-spacing="1.5">${year} • ARCHIVE</text>
+          <text x="286" y="153" text-anchor="end" fill="${accent}" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="bold">${title.substring(0, 16).toUpperCase()}</text>
+        </svg>
+      `;
+    }
+
+    // -------------------------------------------------------------
+    // 3. RETRO GAME ENGINES (Clean 60 FPS Canvas Implementations)
+    // -------------------------------------------------------------
+    const GameEngineManager = {
+      canvas: null,
+      ctx: null,
+      activeEngine: null,
+      animId: null,
+      isPaused: false,
+      score: 0,
+      highScore: 0,
+      currentGameData: null,
+
+      init(canvasEl) {
+        this.canvas = canvasEl;
+        this.ctx = canvasEl.getContext('2d');
+      },
+
+      start(gameData) {
+        this.stop();
+        this.currentGameData = gameData;
+        this.score = 0;
+        this.isPaused = false;
+        this.updateScoreUI();
+
+        // Fetch high score from localStorage
+        const savedHigh = localStorage.getItem(`retro_high_${gameData.id}`);
+        this.highScore = savedHigh ? parseInt(savedHigh, 10) : 0;
+        this.updateHighScoreUI();
+
+        // Instantiate specific engine
+        switch (gameData.engineKey) {
+          case 'snake':
+            this.activeEngine = new ViperSnakeEngine(this);
+            break;
+          case 'shooter':
+            this.activeEngine = new StarfallShooterEngine(this);
+            break;
+          case 'breakout':
+            this.activeEngine = new BrickBastionEngine(this);
+            break;
+          case 'pong':
+            this.activeEngine = new CyberPongEngine(this);
+            break;
+          case 'miner':
+            this.activeEngine = new CryptMinerEngine(this);
+            break;
+          default:
+            this.activeEngine = new ArchiveTerminalEngine(this, gameData);
+            break;
+        }
+
+        this.activeEngine.init();
+        this.loop();
+      },
+
+      loop() {
+        if (!this.isPaused && this.activeEngine) {
+          this.activeEngine.update();
+          this.activeEngine.render(this.ctx);
+        }
+        this.animId = requestAnimationFrame(() => this.loop());
+      },
+
+      stop() {
+        if (this.animId) {
+          cancelAnimationFrame(this.animId);
+          this.animId = null;
+        }
+        if (this.activeEngine && this.activeEngine.destroy) {
+          this.activeEngine.destroy();
+        }
+        this.activeEngine = null;
+      },
+
+      togglePause() {
+        this.isPaused = !this.isPaused;
+        const pauseOverlay = document.getElementById('gamePauseOverlay');
+        const pauseBtn = document.getElementById('btnPauseGame');
+        if (this.isPaused) {
+          pauseOverlay.style.display = 'flex';
+          pauseBtn.textContent = 'Resume (P)';
+        } else {
+          pauseOverlay.style.display = 'none';
+          pauseBtn.textContent = 'Pause (P)';
+        }
+      },
+
+      restart() {
+        if (this.currentGameData) {
+          this.start(this.currentGameData);
+        }
+      },
+
+      addScore(points) {
+        this.score += points;
+        if (this.score > this.highScore) {
+          this.highScore = this.score;
+          if (this.currentGameData) {
+            localStorage.setItem(`retro_high_${this.currentGameData.id}`, this.highScore.toString());
+          }
+          this.updateHighScoreUI();
+        }
+        this.updateScoreUI();
+      },
+
+      updateScoreUI() {
+        const hud = document.getElementById('hudScore');
+        if (hud) {
+          hud.textContent = this.score.toString().padStart(5, '0');
+        }
+      },
+
+      updateHighScoreUI() {
+        const hudHigh = document.getElementById('hudHighScore');
+        if (hudHigh) {
+          hudHigh.textContent = this.highScore.toString().padStart(5, '0');
+        }
+      },
+
+      handleInput(action, state) {
+        if (this.activeEngine && this.activeEngine.handleInput) {
+          this.activeEngine.handleInput(action, state);
+        }
+      }
+    };
+
+    // -------------------------------------------------------------
+    // ENGINE 1: VIPER '99 (Retro Grid Snake)
+    // -------------------------------------------------------------
+    class ViperSnakeEngine {
+      constructor(manager) {
+        this.m = manager;
+        this.gridSize = 20;
+        this.cols = 32;
+        this.rows = 24;
+        this.snake = [];
+        this.dir = { x: 1, y: 0 };
+        this.nextDir = { x: 1, y: 0 };
+        this.food = { x: 10, y: 10 };
+        this.tickCounter = 0;
+        this.speedTicks = 7;
+        this.gameOver = false;
+      }
+
+      init() {
+        this.snake = [
+          { x: 8, y: 12 },
+          { x: 7, y: 12 },
+          { x: 6, y: 12 }
+        ];
+        this.dir = { x: 1, y: 0 };
+        this.nextDir = { x: 1, y: 0 };
+        this.spawnFood();
+        this.gameOver = false;
+      }
+
+      spawnFood() {
+        let valid = false;
+        while (!valid) {
+          this.food.x = Math.floor(Math.random() * this.cols);
+          this.food.y = Math.floor(Math.random() * this.rows);
+          valid = !this.snake.some(segment => segment.x === this.food.x && segment.y === this.food.y);
+        }
+      }
+
+      handleInput(action, state) {
+        if (!state) return;
+        if (this.gameOver && (action === 'actionA' || action === 'actionB')) {
+          this.init();
+          return;
+        }
+
+        if (action === 'up' && this.dir.y === 0) this.nextDir = { x: 0, y: -1 };
+        if (action === 'down' && this.dir.y === 0) this.nextDir = { x: 0, y: 1 };
+        if (action === 'left' && this.dir.x === 0) this.nextDir = { x: -1, y: 0 };
+        if (action === 'right' && this.dir.x === 0) this.nextDir = { x: 1, y: 0 };
+      }
+
+      update() {
+        if (this.gameOver) return;
+
+        this.tickCounter++;
+        if (this.tickCounter < this.speedTicks) return;
+        this.tickCounter = 0;
+
+        this.dir = { ...this.nextDir };
+        const head = { x: this.snake[0].x + this.dir.x, y: this.snake[0].y + this.dir.y };
+
+        // Wall collisions (Wrap around or death: let's do classic lethal perimeter)
+        if (head.x < 0 || head.x >= this.cols || head.y < 0 || head.y >= this.rows) {
+          this.onGameOver();
+          return;
+        }
+
+        // Self collision
+        if (this.snake.some(seg => seg.x === head.x && seg.y === head.y)) {
+          this.onGameOver();
+          return;
+        }
+
+        this.snake.unshift(head);
+
+        // Food hit
+        if (head.x === this.food.x && head.y === this.food.y) {
+          this.m.addScore(100);
+          RetroAudio.point();
+          this.spawnFood();
+          // Mild speed ramp
+          if (this.m.score % 500 === 0 && this.speedTicks > 3) {
+            this.speedTicks--;
+          }
+        } else {
+          this.snake.pop();
+        }
+      }
+
+      onGameOver() {
+        this.gameOver = true;
+        RetroAudio.explode();
+      }
+
+      render(ctx) {
+        // CRT background clearing
+        ctx.fillStyle = '#11100e';
+        ctx.fillRect(0, 0, 640, 480);
+
+        // Subtle amber grid matrix
+        ctx.strokeStyle = 'rgba(198, 153, 71, 0.08)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < 640; x += this.gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, 480);
+          ctx.stroke();
+        }
+        for (let y = 0; y < 480; y += this.gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(640, y);
+          ctx.stroke();
+        }
+
+        // Draw food (Telemetry Data Block)
+        ctx.fillStyle = '#e84118';
+        ctx.fillRect(this.food.x * this.gridSize + 2, this.food.y * this.gridSize + 2, this.gridSize - 4, this.gridSize - 4);
+        ctx.fillStyle = '#fbc531';
+        ctx.fillRect(this.food.x * this.gridSize + 6, this.food.y * this.gridSize + 6, this.gridSize - 12, this.gridSize - 12);
+
+        // Draw snake
+        this.snake.forEach((seg, i) => {
+          if (i === 0) {
+            ctx.fillStyle = '#c69947'; // Head
+          } else {
+            ctx.fillStyle = '#8b6b32'; // Body
+          }
+          ctx.fillRect(seg.x * this.gridSize + 1, seg.y * this.gridSize + 1, this.gridSize - 2, this.gridSize - 2);
+        });
+
+        // Game Over modal banner
+        if (this.gameOver) {
+          ctx.fillStyle = 'rgba(18, 16, 13, 0.88)';
+          ctx.fillRect(140, 180, 360, 120);
+          ctx.strokeStyle = '#c69947';
+          ctx.strokeRect(140, 180, 360, 120);
+
+          ctx.fillStyle = '#e84118';
+          ctx.font = 'bold 22px monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('SIGNAL TERMINATED', 320, 225);
+
+          ctx.fillStyle = '#ebe4d3';
+          ctx.font = '14px monospace';
+          ctx.fillText('Press Action Button or R to reboot', 320, 265);
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // ENGINE 2: STARFALL PATROL (Space Shooter)
+    // -------------------------------------------------------------
+    class StarfallShooterEngine {
+      constructor(manager) {
+        this.m = manager;
+        this.player = { x: 300, y: 420, w: 28, h: 24, speed: 6 };
+        this.bullets = [];
+        this.enemies = [];
+        this.stars = [];
+        this.particles = [];
+        this.keys = {};
+        this.spawnTimer = 0;
+        this.gameOver = false;
+      }
+
+      init() {
+        this.player.x = 306;
+        this.player.y = 420;
+        this.bullets = [];
+        this.enemies = [];
+        this.particles = [];
+        this.gameOver = false;
+        this.stars = [];
+        for (let i = 0; i < 45; i++) {
+          this.stars.push({
+            x: Math.random() * 640,
+            y: Math.random() * 480,
+            s: Math.random() * 2 + 0.5,
+            v: Math.random() * 1.5 + 0.5
+          });
+        }
+      }
+
+      handleInput(action, state) {
+        this.keys[action] = state;
+        if (state && (action === 'actionA' || action === 'actionB') && !this.gameOver) {
+          this.shoot();
+        }
+        if (this.gameOver && state && (action === 'actionA' || action === 'actionB')) {
+          this.init();
+        }
+      }
+
+      shoot() {
+        if (this.bullets.length < 5) {
+          this.bullets.push({ x: this.player.x + 13, y: this.player.y - 4, vy: -9 });
+          RetroAudio.laser();
+        }
+      }
+
+      update() {
+        if (this.gameOver) return;
+
+        // Starfield scroll
+        this.stars.forEach(s => {
+          s.y += s.v;
+          if (s.y > 480) { s.y = 0; s.x = Math.random() * 640; }
+        });
+
+        // Player motion
+        if (this.keys['left'] && this.player.x > 10) this.player.x -= this.player.speed;
+        if (this.keys['right'] && this.player.x < 640 - this.player.w - 10) this.player.x += this.player.speed;
+
+        // Bullets update
+        for (let i = this.bullets.length - 1; i >= 0; i--) {
+          const b = this.bullets[i];
+          b.y += b.vy;
+          if (b.y < -10) this.bullets.splice(i, 1);
+        }
+
+        // Enemy spawn
+        this.spawnTimer++;
+        if (this.spawnTimer > 40) {
+          this.spawnTimer = 0;
+          this.enemies.push({
+            x: Math.random() * 560 + 20,
+            y: -20,
+            w: 26,
+            h: 20,
+            vy: Math.random() * 1.5 + 1.8,
+            vx: Math.sin(Math.random() * 5) * 1.2
+          });
+        }
+
+        // Enemy logic & bullet collision
+        for (let eIdx = this.enemies.length - 1; eIdx >= 0; eIdx--) {
+          const e = this.enemies[eIdx];
+          e.y += e.vy;
+          e.x += e.vx;
+
+          if (e.y > 490) {
+            this.enemies.splice(eIdx, 1);
+            continue;
+          }
+
+          // Bullet hits
+          for (let bIdx = this.bullets.length - 1; bIdx >= 0; bIdx--) {
+            const b = this.bullets[bIdx];
+            if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
+              this.bullets.splice(bIdx, 1);
+              this.enemies.splice(eIdx, 1);
+              this.m.addScore(150);
+              RetroAudio.explode();
+              this.addExplosion(e.x + e.w / 2, e.y + e.h / 2);
+              break;
+            }
+          }
+
+          // Player collision
+          if (
+            e.x < this.player.x + this.player.w &&
+            e.x + e.w > this.player.x &&
+            e.y < this.player.y + this.player.h &&
+            e.y + e.h > this.player.y
+          ) {
+            this.gameOver = true;
+            RetroAudio.explode();
+            this.addExplosion(this.player.x, this.player.y);
+          }
+        }
+
+        // Particles
+        for (let pIdx = this.particles.length - 1; pIdx >= 0; pIdx--) {
+          const p = this.particles[pIdx];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life -= 0.04;
+          if (p.life <= 0) this.particles.splice(pIdx, 1);
+        }
+      }
+
+      addExplosion(x, y) {
+        for (let i = 0; i < 12; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const spd = Math.random() * 3 + 1;
+          this.particles.push({
+            x, y,
+            vx: Math.cos(angle) * spd,
+            vy: Math.sin(angle) * spd,
+            life: 1.0,
+            color: Math.random() > 0.5 ? '#c69947' : '#e84118'
+          });
+        }
+      }
+
+      render(ctx) {
+        ctx.fillStyle = '#0a0908';
+        ctx.fillRect(0, 0, 640, 480);
+
+        // Stars
+        ctx.fillStyle = '#dcd4c0';
+        this.stars.forEach(s => {
+          ctx.fillRect(s.x, s.y, s.s, s.s);
+        });
+
+        // Bullets
+        ctx.fillStyle = '#fbc531';
+        this.bullets.forEach(b => {
+          ctx.fillRect(b.x, b.y, 3, 10);
+        });
+
+        // Player Ship (Vector wireframe aesthetics)
+        if (!this.gameOver) {
+          ctx.strokeStyle = '#c69947';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(this.player.x + this.player.w / 2, this.player.y);
+          ctx.lineTo(this.player.x + this.player.w, this.player.y + this.player.h);
+          ctx.lineTo(this.player.x + this.player.w / 2, this.player.y + this.player.h - 5);
+          ctx.lineTo(this.player.x, this.player.y + this.player.h);
+          ctx.closePath();
+          ctx.stroke();
+
+          // Engine flame
+          ctx.fillStyle = '#9e4a36';
+          ctx.fillRect(this.player.x + this.player.w / 2 - 2, this.player.y + this.player.h, 4, 6);
+        }
+
+        // Enemies
+        this.enemies.forEach(e => {
+          ctx.strokeStyle = '#9e4a36';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(e.x, e.y, e.w, e.h);
+          ctx.fillStyle = 'rgba(158, 74, 54, 0.4)';
+          ctx.fillRect(e.x + 3, e.y + 3, e.w - 6, e.h - 6);
+        });
+
+        // Particles
+        this.particles.forEach(p => {
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.life;
+          ctx.fillRect(p.x, p.y, 3, 3);
+          ctx.globalAlpha = 1.0;
+        });
+
+        if (this.gameOver) {
+          ctx.fillStyle = 'rgba(14, 13, 11, 0.9)';
+          ctx.fillRect(140, 180, 360, 120);
+          ctx.strokeStyle = '#c69947';
+          ctx.strokeRect(140, 180, 360, 120);
+          ctx.fillStyle = '#e84118';
+          ctx.font = 'bold 20px monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('HULL INTEGRITY ZERO', 320, 225);
+          ctx.fillStyle = '#ebe4d3';
+          ctx.font = '14px monospace';
+          ctx.fillText('Press Action Button to deploy', 320, 265);
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // ENGINE 3: BRICK BASTION (Breakout / Arkanoid)
+    // -------------------------------------------------------------
+    class BrickBastionEngine {
+      constructor(manager) {
+        this.m = manager;
+        this.paddle = { x: 270, y: 440, w: 90, h: 12, speed: 8 };
+        this.ball = { x: 320, y: 300, r: 6, vx: 4, vy: -4 };
+        this.bricks = [];
+        this.keys = {};
+        this.gameOver = false;
+      }
+
+      init() {
+        this.paddle.x = 275;
+        this.ball.x = 320;
+        this.ball.y = 350;
+        this.ball.vx = (Math.random() > 0.5 ? 4 : -4);
+        this.ball.vy = -4;
+        this.gameOver = false;
+        this.buildBricks();
+      }
+
+      buildBricks() {
+        this.bricks = [];
+        const rows = 5;
+        const cols = 10;
+        const brickW = 54;
+        const brickH = 16;
+        const offsetX = 50;
+        const offsetY = 50;
+
+        const colors = ['#c69947', '#b38a4a', '#9e4a36', '#5e6b4f', '#736a5b'];
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            this.bricks.push({
+              x: offsetX + c * (brickW + 6),
+              y: offsetY + r * (brickH + 6),
+              w: brickW,
+              h: brickH,
+              color: colors[r],
+              active: true
+            });
+          }
+        }
+      }
+
+      handleInput(action, state) {
+        this.keys[action] = state;
+        if (this.gameOver && state && (action === 'actionA' || action === 'actionB')) {
+          this.init();
+        }
+      }
+
+      update() {
+        if (this.gameOver) return;
+
+        // Paddle move
+        if (this.keys['left'] && this.paddle.x > 10) this.paddle.x -= this.paddle.speed;
+        if (this.keys['right'] && this.paddle.x < 640 - this.paddle.w - 10) this.paddle.x += this.paddle.speed;
+
+        // Ball movement
+        this.ball.x += this.ball.vx;
+        this.ball.y += this.ball.vy;
+
+        // Wall collisions
+        if (this.ball.x - this.ball.r <= 0 || this.ball.x + this.ball.r >= 640) {
+          this.ball.vx *= -1;
+          RetroAudio.blip();
+        }
+        if (this.ball.y - this.ball.r <= 0) {
+          this.ball.vy *= -1;
+          RetroAudio.blip();
+        }
+
+        // Bottom pit
+        if (this.ball.y > 480) {
+          this.gameOver = true;
+          RetroAudio.explode();
+        }
+
+        // Paddle hit
+        if (
+          this.ball.y + this.ball.r >= this.paddle.y &&
+          this.ball.y - this.ball.r <= this.paddle.y + this.paddle.h &&
+          this.ball.x >= this.paddle.x &&
+          this.ball.x <= this.paddle.x + this.paddle.w &&
+          this.ball.vy > 0
+        ) {
+          // Angle bounce based on hit location
+          const offset = (this.ball.x - (this.paddle.x + this.paddle.w / 2)) / (this.paddle.w / 2);
+          this.ball.vx = offset * 5.5;
+          this.ball.vy = -Math.abs(this.ball.vy);
+          RetroAudio.blip();
+        }
+
+        // Brick collisions
+        let remaining = 0;
+        this.bricks.forEach(b => {
+          if (!b.active) return;
+          remaining++;
+          if (
+            this.ball.x + this.ball.r > b.x &&
+            this.ball.x - this.ball.r < b.x + b.w &&
+            this.ball.y + this.ball.r > b.y &&
+            this.ball.y - this.ball.r < b.y + b.h
+          ) {
+            b.active = false;
+            this.ball.vy *= -1;
+            this.m.addScore(50);
+            RetroAudio.point();
+          }
+        });
+
+        // Respawn bricks if cleared
+        if (remaining === 0) {
+          this.buildBricks();
+          RetroAudio.powerup();
+        }
+      }
+
+      render(ctx) {
+        ctx.fillStyle = '#141210';
+        ctx.fillRect(0, 0, 640, 480);
+
+        // Bricks
+        this.bricks.forEach(b => {
+          if (!b.active) return;
+          ctx.fillStyle = b.color;
+          ctx.fillRect(b.x, b.y, b.w, b.h);
+          ctx.strokeStyle = '#0d0c0b';
+          ctx.strokeRect(b.x, b.y, b.w, b.h);
+        });
+
+        // Paddle
+        ctx.fillStyle = '#c69947';
+        ctx.fillRect(this.paddle.x, this.paddle.y, this.paddle.w, this.paddle.h);
+        ctx.strokeStyle = '#ede6d6';
+        ctx.strokeRect(this.paddle.x, this.paddle.y, this.paddle.w, this.paddle.h);
+
+        // Ball
+        ctx.fillStyle = '#ede6d6';
+        ctx.beginPath();
+        ctx.arc(this.ball.x, this.ball.y, this.ball.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (this.gameOver) {
+          ctx.fillStyle = 'rgba(14, 13, 11, 0.88)';
+          ctx.fillRect(160, 180, 320, 110);
+          ctx.strokeStyle = '#c69947';
+          ctx.strokeRect(160, 180, 320, 110);
+          ctx.fillStyle = '#e84118';
+          ctx.font = 'bold 20px monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('DEFLECTION FAILURE', 320, 225);
+          ctx.fillStyle = '#ebe4d3';
+          ctx.font = '13px monospace';
+          ctx.fillText('Press Action Button to restart', 320, 260);
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // ENGINE 4: CYBER PONG (Player vs Adaptive AI)
+    // -------------------------------------------------------------
+    class CyberPongEngine {
+      constructor(manager) {
+        this.m = manager;
+        this.paddleH = 64;
+        this.paddleW = 10;
+        this.p1 = { y: 208, score: 0 };
+        this.ai = { y: 208, score: 0, speed: 3.8 };
+        this.ball = { x: 320, y: 240, vx: 4.5, vy: 2, r: 6 };
+        this.keys = {};
+      }
+
+      init() {
+        this.p1.y = 208;
+        this.ai.y = 208;
+        this.p1.score = 0;
+        this.ai.score = 0;
+        this.resetBall();
+      }
+
+      resetBall() {
+        this.ball.x = 320;
+        this.ball.y = 240;
+        this.ball.vx = (Math.random() > 0.5 ? 4.5 : -4.5);
+        this.ball.vy = (Math.random() * 4 - 2);
+      }
+
+      handleInput(action, state) {
+        this.keys[action] = state;
+      }
+
+      update() {
+        // Player 1 movement
+        if (this.keys['up'] && this.p1.y > 10) this.p1.y -= 5;
+        if (this.keys['down'] && this.p1.y < 480 - this.paddleH - 10) this.p1.y += 5;
+
+        // Smart Adaptive AI movement
+        const aiCenter = this.ai.y + this.paddleH / 2;
+        if (this.ball.vx > 0) {
+          if (aiCenter < this.ball.y - 12) this.ai.y += this.ai.speed;
+          else if (aiCenter > this.ball.y + 12) this.ai.y -= this.ai.speed;
+        }
+
+        // Keep AI in bounds
+        if (this.ai.y < 10) this.ai.y = 10;
+        if (this.ai.y > 480 - this.paddleH - 10) this.ai.y = 480 - this.paddleH - 10;
+
+        // Ball movement
+        this.ball.x += this.ball.vx;
+        this.ball.y += this.ball.vy;
+
+        // Top / Bottom wall bounce
+        if (this.ball.y - this.ball.r <= 0 || this.ball.y + this.ball.r >= 480) {
+          this.ball.vy *= -1;
+          RetroAudio.blip();
+        }
+
+        // P1 paddle hit
+        if (
+          this.ball.x - this.ball.r <= 25 + this.paddleW &&
+          this.ball.y >= this.p1.y &&
+          this.ball.y <= this.p1.y + this.paddleH &&
+          this.ball.vx < 0
+        ) {
+          this.ball.vx *= -1.06;
+          this.ball.vy += ((this.ball.y - (this.p1.y + this.paddleH / 2)) / (this.paddleH / 2)) * 3;
+          this.m.addScore(20);
+          RetroAudio.blip();
+        }
+
+        // AI paddle hit
+        if (
+          this.ball.x + this.ball.r >= 615 - this.paddleW &&
+          this.ball.y >= this.ai.y &&
+          this.ball.y <= this.ai.y + this.paddleH &&
+          this.ball.vx > 0
+        ) {
+          this.ball.vx *= -1.06;
+          RetroAudio.blip();
+        }
+
+        // Point score
+        if (this.ball.x < 0) {
+          this.ai.score++;
+          RetroAudio.explode();
+          this.resetBall();
+        } else if (this.ball.x > 640) {
+          this.p1.score++;
+          this.m.addScore(100);
+          RetroAudio.point();
+          this.resetBall();
+        }
+      }
+
+      render(ctx) {
+        ctx.fillStyle = '#11100e';
+        ctx.fillRect(0, 0, 640, 480);
+
+        // Center dashed court line
+        ctx.strokeStyle = 'rgba(198, 153, 71, 0.2)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([12, 12]);
+        ctx.beginPath();
+        ctx.moveTo(320, 0);
+        ctx.lineTo(320, 480);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Score display
+        ctx.font = '36px monospace';
+        ctx.fillStyle = '#c69947';
+        ctx.textAlign = 'center';
+        ctx.fillText(this.p1.score.toString(), 260, 60);
+        ctx.fillText(this.ai.score.toString(), 380, 60);
+
+        // Paddles
+        ctx.fillStyle = '#ebe4d3';
+        ctx.fillRect(25, this.p1.y, this.paddleW, this.paddleH);
+        ctx.fillRect(615 - this.paddleW, this.ai.y, this.paddleW, this.paddleH);
+
+        // Ball
+        ctx.beginPath();
+        ctx.arc(this.ball.x, this.ball.y, this.ball.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // ENGINE 5: CRYPT MINER (Minesweeper)
+    // -------------------------------------------------------------
+    class CryptMinerEngine {
+      constructor(manager) {
+        this.m = manager;
+        this.cols = 16;
+        this.rows = 12;
+        this.cellSize = 32;
+        this.offsetX = 64;
+        this.offsetY = 48;
+        this.grid = [];
+        this.cursor = { x: 7, y: 5 };
+        this.minesCount = 20;
+        this.gameOver = false;
+        this.gameWon = false;
+      }
+
+      init() {
+        this.gameOver = false;
+        this.gameWon = false;
+        this.grid = [];
+        for (let y = 0; y < this.rows; y++) {
+          const row = [];
+          for (let x = 0; x < this.cols; x++) {
+            row.push({ mine: false, revealed: false, flagged: false, count: 0 });
+          }
+          this.grid.push(row);
+        }
+
+        // Place mines
+        let placed = 0;
+        while (placed < this.minesCount) {
+          const rx = Math.floor(Math.random() * this.cols);
+          const ry = Math.floor(Math.random() * this.rows);
+          if (!this.grid[ry][rx].mine) {
+            this.grid[ry][rx].mine = true;
+            placed++;
+          }
+        }
+
+        // Precompute counts
+        for (let y = 0; y < this.rows; y++) {
+          for (let x = 0; x < this.cols; x++) {
+            if (this.grid[y][x].mine) continue;
+            let c = 0;
+            for (let dy = -1; dy <= 1; dy++) {
+              for (let dx = -1; dx <= 1; dx++) {
+                const ny = y + dy;
+                const nx = x + dx;
+                if (ny >= 0 && ny < this.rows && nx >= 0 && nx < this.cols && this.grid[ny][nx].mine) {
+                  c++;
+                }
+              }
+            }
+            this.grid[y][x].count = c;
+          }
+        }
+      }
+
+      handleInput(action, state) {
+        if (!state) return;
+
+        if (this.gameOver || this.gameWon) {
+          if (action === 'actionA' || action === 'actionB') this.init();
+          return;
+        }
+
+        if (action === 'up' && this.cursor.y > 0) this.cursor.y--;
+        if (action === 'down' && this.cursor.y < this.rows - 1) this.cursor.y++;
+        if (action === 'left' && this.cursor.x > 0) this.cursor.x--;
+        if (action === 'right' && this.cursor.x < this.cols - 1) this.cursor.x++;
+
+        if (action === 'actionA') this.reveal(this.cursor.x, this.cursor.y);
+        if (action === 'actionB') this.toggleFlag(this.cursor.x, this.cursor.y);
+      }
+
+      reveal(x, y) {
+        const cell = this.grid[y][x];
+        if (cell.revealed || cell.flagged) return;
+
+        cell.revealed = true;
+        if (cell.mine) {
+          this.gameOver = true;
+          RetroAudio.explode();
+          return;
+        }
+
+        this.m.addScore(10);
+        RetroAudio.blip();
+
+        // Flood fill empty neighbors
+        if (cell.count === 0) {
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              const ny = y + dy;
+              const nx = x + dx;
+              if (ny >= 0 && ny < this.rows && nx >= 0 && nx < this.cols) {
+                if (!this.grid[ny][nx].revealed) this.reveal(nx, ny);
+              }
+            }
+          }
+        }
+
+        // Check victory
+        let unrevealedSafe = 0;
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            if (!this.grid[r][c].mine && !this.grid[r][c].revealed) unrevealedSafe++;
+          }
+        }
+        if (unrevealedSafe === 0) {
+          this.gameWon = true;
+          this.m.addScore(1000);
+          RetroAudio.powerup();
+        }
+      }
+
+      toggleFlag(x, y) {
+        const cell = this.grid[y][x];
+        if (cell.revealed) return;
+        cell.flagged = !cell.flagged;
+        RetroAudio.point();
+      }
+
+      update() {}
+
+      render(ctx) {
+        ctx.fillStyle = '#141210';
+        ctx.fillRect(0, 0, 640, 480);
+
+        // Header info
+        ctx.fillStyle = '#c69947';
+        ctx.font = '14px monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(`TELEMETRY MINES: ${this.minesCount}   [A: Probe] [B: Flag]`, this.offsetX, 32);
+
+        // Grid
+        for (let y = 0; y < this.rows; y++) {
+          for (let x = 0; x < this.cols; x++) {
+            const cell = this.grid[y][x];
+            const px = this.offsetX + x * this.cellSize;
+            const py = this.offsetY + y * this.cellSize;
+
+            if (cell.revealed) {
+              ctx.fillStyle = cell.mine ? '#9e4a36' : '#23201b';
+              ctx.fillRect(px, py, this.cellSize - 1, this.cellSize - 1);
+
+              if (cell.mine) {
+                ctx.fillStyle = '#fff';
+                ctx.fillText('*', px + 12, py + 22);
+              } else if (cell.count > 0) {
+                const colors = ['', '#c69947', '#5e6b4f', '#9e4a36', '#8e836f'];
+                ctx.fillStyle = colors[cell.count] || '#ebe4d3';
+                ctx.font = 'bold 16px monospace';
+                ctx.fillText(cell.count.toString(), px + 11, py + 22);
+              }
+            } else {
+              ctx.fillStyle = '#2d2821';
+              ctx.fillRect(px, py, this.cellSize - 1, this.cellSize - 1);
+              if (cell.flagged) {
+                ctx.fillStyle = '#fbc531';
+                ctx.fillText('⚑', px + 9, py + 22);
+              }
+            }
+
+            // Cursor Highlight
+            if (this.cursor.x === x && this.cursor.y === y) {
+              ctx.strokeStyle = '#ede6d6';
+              ctx.lineWidth = 2;
+              ctx.strokeRect(px - 1, py - 1, this.cellSize + 1, this.cellSize + 1);
+            }
+          }
+        }
+
+        if (this.gameOver) {
+          ctx.fillStyle = 'rgba(14, 13, 11, 0.88)';
+          ctx.fillRect(160, 190, 320, 100);
+          ctx.strokeStyle = '#c69947';
+          ctx.strokeRect(160, 190, 320, 100);
+          ctx.fillStyle = '#e84118';
+          ctx.font = 'bold 20px monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('PLASMA POCKET DETONATED', 320, 235);
+          ctx.fillStyle = '#ebe4d3';
+          ctx.font = '13px monospace';
+          ctx.fillText('Press Action Button to restart', 320, 265);
+        }
+
+        if (this.gameWon) {
+          ctx.fillStyle = 'rgba(14, 13, 11, 0.88)';
+          ctx.fillRect(160, 190, 320, 100);
+          ctx.strokeStyle = '#50c878';
+          ctx.strokeRect(160, 190, 320, 100);
+          ctx.fillStyle = '#50c878';
+          ctx.font = 'bold 20px monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('SECTOR SURVEY COMPLETE', 320, 235);
+          ctx.fillStyle = '#ebe4d3';
+          ctx.font = '13px monospace';
+          ctx.fillText('Vault archive score logged!', 320, 265);
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // ENGINE 6: INTERACTIVE CRT ARCHIVE TERMINAL (For non-canvas games)
+    // -------------------------------------------------------------
+    class ArchiveTerminalEngine {
+      constructor(manager, gameData) {
+        this.m = manager;
+        this.data = gameData;
+        this.rot = 0;
+        this.pulse = 0;
+      }
+
+      init() {
+        this.m.addScore(500);
+        RetroAudio.powerup();
+      }
+
+      handleInput(action, state) {
+        if (state) {
+          RetroAudio.blip();
+          this.m.addScore(10);
+        }
+      }
+
+      update() {
+        this.rot += 0.02;
+        this.pulse += 0.05;
+      }
+
+      render(ctx) {
+        ctx.fillStyle = '#0f0e0c';
+        ctx.fillRect(0, 0, 640, 480);
+
+        // Vector CRT Grid
+        ctx.strokeStyle = 'rgba(198, 153, 71, 0.12)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 640; i += 40) {
+          ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 480); ctx.stroke();
+        }
+        for (let j = 0; j < 480; j += 40) {
+          ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(640, j); ctx.stroke();
+        }
+
+        // Rotating Wireframe Core
+        ctx.save();
+        ctx.translate(320, 180);
+        ctx.rotate(this.rot);
+
+        const sz = 70 + Math.sin(this.pulse) * 8;
+        ctx.strokeStyle = '#c69947';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-sz / 2, -sz / 2, sz, sz);
+        ctx.rotate(Math.PI / 4);
+        ctx.strokeStyle = '#9e4a36';
+        ctx.strokeRect(-sz / 2.5, -sz / 2.5, sz / 1.25, sz / 1.25);
+        ctx.restore();
+
+        // Archival Telemetry Data
+        ctx.fillStyle = '#ebe4d3';
+        ctx.font = 'bold 18px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(`VAULT ARCHIVE // ${this.data.title.toUpperCase()}`, 320, 290);
+
+        ctx.fillStyle = '#c69947';
+        ctx.font = '14px monospace';
+        ctx.fillText(`RELEASE: ${this.data.year}   PLATFORM: ${this.data.platform}`, 320, 318);
+
+        ctx.fillStyle = '#8e836f';
+        ctx.font = '13px monospace';
+        ctx.fillText('GENUINE CARTRIDGE PRESERVATION REPLICA', 320, 350);
+        ctx.fillText('Press any action key to synthesize telemetry audio tones', 320, 375);
+
+        // Blinking terminal cursor
+        if (Math.floor(Date.now() / 500) % 2 === 0) {
+          ctx.fillStyle = '#50c878';
+          ctx.fillRect(320 + 170, 306, 10, 14);
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 4. MAIN CONTROLLER & APPLICATION STATE
+    // -------------------------------------------------------------
+    const GameApp = {
+      games: GAMES_DATA,
+      activeGenre: 'all',
+      searchQuery: '',
+      sortOption: 'rating',
+      onlyFavorites: false,
+      favorites: new Set(),
+
+      init() {
+        this.loadFavorites();
+        this.setupDOM();
+        this.setupHeroThumbnails();
+        this.renderCatalog();
+        this.setupKeyboardListeners();
+        this.setupTouchListeners();
+      },
+
+      loadFavorites() {
+        try {
+          const raw = localStorage.getItem('retro_vault_favs');
+          if (raw) {
+            this.favorites = new Set(JSON.parse(raw));
+          }
+        } catch (e) {
+          this.favorites = new Set();
+        }
+        this.updateFavCounterBadge();
+      },
+
+      saveFavorites() {
+        try {
+          localStorage.setItem('retro_vault_favs', JSON.stringify(Array.from(this.favorites)));
+        } catch (e) {}
+        this.updateFavCounterBadge();
+      },
+
+      toggleFavorite(id, e) {
+        if (e) e.stopPropagation();
+        if (this.favorites.has(id)) {
+          this.favorites.delete(id);
+          this.showToast('Removed from Saved Favorites');
+        } else {
+          this.favorites.add(id);
+          RetroAudio.point();
+          this.showToast('Archived into Favorites');
+        }
+        this.saveFavorites();
+        this.renderCatalog();
+      },
+
+      updateFavCounterBadge() {
+        const badge = document.getElementById('favCounterBadge');
+        if (badge) badge.textContent = this.favorites.size.toString();
+      },
+
+      setupDOM() {
+        // Search Input
+        const searchInput = document.getElementById('searchInput');
+        const searchClearBtn = document.getElementById('searchClearBtn');
+
+        searchInput.addEventListener('input', (e) => {
+          this.searchQuery = e.target.value.trim().toLowerCase();
+          searchClearBtn.style.display = this.searchQuery ? 'block' : 'none';
+          this.renderCatalog();
+        });
+
+        searchClearBtn.addEventListener('click', () => {
+          searchInput.value = '';
+          this.searchQuery = '';
+          searchClearBtn.style.display = 'none';
+          this.renderCatalog();
+        });
+
+        // Genre Pill Filters
+        const pills = document.querySelectorAll('.genre-pill');
+        pills.forEach(p => {
+          p.addEventListener('click', () => {
+            pills.forEach(el => el.classList.remove('active'));
+            p.classList.add('active');
+            this.activeGenre = p.dataset.genre;
+            this.renderCatalog();
+          });
+        });
+
+        // Sorting
+        const sortSelect = document.getElementById('sortSelect');
+        sortSelect.addEventListener('change', (e) => {
+          this.sortOption = e.target.value;
+          this.renderCatalog();
+        });
+
+        // Favorites Toggles
+        const favFilterBtn = document.getElementById('toolbarFavFilterBtn');
+        const headerFavBtn = document.getElementById('headerFavToggle');
+        const navFavoritesBtn = document.getElementById('navFavoritesBtn');
+
+        const toggleFavMode = () => {
+          this.onlyFavorites = !this.onlyFavorites;
+          favFilterBtn.classList.toggle('active', this.onlyFavorites);
+          this.renderCatalog();
+        };
+
+        favFilterBtn.addEventListener('click', toggleFavMode);
+        headerFavBtn.addEventListener('click', toggleFavMode);
+        navFavoritesBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.onlyFavorites = true;
+          favFilterBtn.classList.add('active');
+          document.getElementById('catalogSection').scrollIntoView({ behavior: 'smooth' });
+          this.renderCatalog();
+        });
+
+        // Random Game Actions
+        document.getElementById('randomGameBtn').addEventListener('click', () => this.openRandomGame());
+
+        // Hero Buttons
+        document.getElementById('heroQuickPlayBtn').addEventListener('click', () => this.openGame('viper99'));
+
+        // Reset filter state
+        document.getElementById('resetFiltersBtn').addEventListener('click', () => {
+          this.searchQuery = '';
+          this.activeGenre = 'all';
+          this.onlyFavorites = false;
+          searchInput.value = '';
+          searchClearBtn.style.display = 'none';
+          favFilterBtn.classList.remove('active');
+          pills.forEach(p => p.classList.toggle('active', p.dataset.genre === 'all'));
+          this.renderCatalog();
+        });
+
+        // Mobile Search Expand
+        const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+        mobileSearchBtn.addEventListener('click', () => {
+          document.getElementById('searchContainer').classList.toggle('mobile-open');
+        });
+
+        // Modal Controls
+        const modal = document.getElementById('gameModal');
+        document.getElementById('modalCloseBtn').addEventListener('click', () => this.closeGameModal());
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) this.closeGameModal();
+        });
+
+        document.getElementById('btnPauseGame').addEventListener('click', () => GameEngineManager.togglePause());
+        document.getElementById('btnRestartGame').addEventListener('click', () => GameEngineManager.restart());
+
+        const audioToggleBtn = document.getElementById('btnAudioToggle');
+        audioToggleBtn.addEventListener('click', () => {
+          const isSoundOn = RetroAudio.toggleMute();
+          document.getElementById('audioIcon').textContent = isSoundOn ? '🔊 Sound: ON' : '🔇 Sound: OFF';
+        });
+
+        // Initialize Canvas
+        const canvas = document.getElementById('gameCanvas');
+        GameEngineManager.init(canvas);
+      },
+
+      setupHeroThumbnails() {
+        const viperG = this.games.find(g => g.id === 'viper99');
+        const starfallG = this.games.find(g => g.id === 'starfall');
+        const brickG = this.games.find(g => g.id === 'brick');
+        const pongG = this.games.find(g => g.id === 'pong');
+
+        if (viperG) document.getElementById('heroThumbViper').innerHTML = generateRetroSVG(viperG.svgTheme, viperG.title, viperG.year, viperG.accentColor);
+        if (starfallG) document.getElementById('heroThumbStarfall').innerHTML = generateRetroSVG(starfallG.svgTheme, starfallG.title, starfallG.year, starfallG.accentColor);
+        if (brickG) document.getElementById('heroThumbBrick').innerHTML = generateRetroSVG(brickG.svgTheme, brickG.title, brickG.year, brickG.accentColor);
+        if (pongG) document.getElementById('heroThumbPong').innerHTML = generateRetroSVG(pongG.svgTheme, pongG.title, pongG.year, pongG.accentColor);
+      },
+
+      renderCatalog() {
+        const grid = document.getElementById('gamesGrid');
+        const emptyState = document.getElementById('emptyState');
+        const counterText = document.getElementById('catalogCounterText');
+
+        // Filter games
+        let filtered = this.games.filter(game => {
+          // Genre filter
+          if (this.activeGenre !== 'all' && game.genre !== this.activeGenre) return false;
+
+          // Favorites filter
+          if (this.onlyFavorites && !this.favorites.has(game.id)) return false;
+
+          // Search term
+          if (this.searchQuery) {
+            const matchTitle = game.title.toLowerCase().includes(this.searchQuery);
+            const matchGenre = game.genreLabel.toLowerCase().includes(this.searchQuery);
+            const matchPlatform = game.platform.toLowerCase().includes(this.searchQuery);
+            const matchDesc = game.description.toLowerCase().includes(this.searchQuery);
+            if (!matchTitle && !matchGenre && !matchPlatform && !matchDesc) return false;
+          }
+
+          return true;
+        });
+
+        // Sort
+        filtered.sort((a, b) => {
+          if (this.sortOption === 'rating') return b.rating - a.rating;
+          if (this.sortOption === 'year-asc') return a.year - b.year;
+          if (this.sortOption === 'year-desc') return b.year - a.year;
+          if (this.sortOption === 'alpha') return a.title.localeCompare(b.title);
+          return 0;
+        });
+
+        counterText.textContent = `Displaying ${filtered.length} of ${this.games.length} historical digital artifacts`;
+
+        if (filtered.length === 0) {
+          grid.innerHTML = '';
+          emptyState.style.display = 'block';
+          return;
+        }
+
+        emptyState.style.display = 'none';
+
+        grid.innerHTML = filtered.map(game => {
+          const isFav = this.favorites.has(game.id);
+          const svgContent = generateRetroSVG(game.svgTheme, game.title, game.year, game.accentColor);
+
+          return `
+            <article class="game-card" data-id="${game.id}">
+              <div class="card-banner" onclick="GameApp.openGame('${game.id}')">
+                ${svgContent}
+                ${game.isPlayableCore ? '<div class="card-badge-playable">Interactive Core</div>' : ''}
+                <button class="card-fav-btn ${isFav ? 'favorited' : ''}" 
+                        onclick="GameApp.toggleFavorite('${game.id}', event)" 
+                        aria-label="${isFav ? 'Remove from favorites' : 'Add to favorites'}"
+                        title="Toggle Favorite">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="card-body">
+                <div class="card-meta-top">
+                  <div class="card-year-platform">
+                    <span class="card-year">${game.year}</span>
+                    <span>•</span>
+                    <span>${game.platform}</span>
+                  </div>
+                  <div class="card-rating">
+                    <span>★</span>
+                    <span>${game.rating.toFixed(1)}</span>
+                  </div>
+                </div>
+
+                <h4 class="card-title">${game.title}</h4>
+                <p class="card-desc">${game.description}</p>
+
+                <div class="card-footer">
+                  <span class="card-genre-tag">${game.genreLabel}</span>
+                  <button class="btn-play-card" onclick="GameApp.openGame('${game.id}')">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    <span>${game.isPlayableCore ? 'Play Core' : 'Inspect'}</span>
+                  </button>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
+      },
+
+      openGame(id) {
+        const game = this.games.find(g => g.id === id);
+        if (!game) return;
+
+        // Populate Modal Meta
+        document.getElementById('modalGameTitle').textContent = game.title;
+        document.getElementById('modalGameYear').textContent = `(${game.year})`;
+        document.getElementById('modalGamePlatform').textContent = game.platform.toUpperCase();
+
+        const instructions = document.getElementById('hudKeyInstructions');
+        if (game.engineKey === 'snake') {
+          instructions.innerHTML = `<span>Controls:</span> <span class="key-badge">Arrows / WASD</span> <span class="key-badge">R: Restart</span>`;
+        } else if (game.engineKey === 'shooter') {
+          instructions.innerHTML = `<span>Controls:</span> <span class="key-badge">Left/Right / A-D</span> <span class="key-badge">Space: Fire</span>`;
+        } else if (game.engineKey === 'breakout') {
+          instructions.innerHTML = `<span>Controls:</span> <span class="key-badge">Left/Right / A-D</span> <span class="key-badge">Deflect Sphere</span>`;
+        } else if (game.engineKey === 'pong') {
+          instructions.innerHTML = `<span>Controls:</span> <span class="key-badge">Up/Down / W-S</span> <span class="key-badge">Defend Goal</span>`;
+        } else if (game.engineKey === 'miner') {
+          instructions.innerHTML = `<span>Controls:</span> <span class="key-badge">Arrows</span> <span class="key-badge">Space: Reveal</span> <span class="key-badge">B: Flag</span>`;
+        } else {
+          instructions.innerHTML = `<span>Terminal:</span> <span class="key-badge">Press Action Keys to Synthesize Chiptune Audio</span>`;
+        }
+
+        // Open Modal
+        const modal = document.getElementById('gameModal');
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+
+        // Start Engine
+        GameEngineManager.start(game);
+        RetroAudio.init();
+      },
+
+      closeGameModal() {
+        const modal = document.getElementById('gameModal');
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+        GameEngineManager.stop();
+      },
+
+      openRandomGame() {
+        const rand = this.games[Math.floor(Math.random() * this.games.length)];
+        this.openGame(rand.id);
+        this.showToast(`Selected from Archive: ${rand.title}`);
+      },
+
+      showToast(msg) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c69947" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 14 14"></polyline>
+          </svg>
+          <span>${msg}</span>
+        `;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(10px)';
+          toast.style.transition = 'all 0.25s ease';
+          setTimeout(() => toast.remove(), 250);
+        }, 3200);
+      },
+
+      setupKeyboardListeners() {
+        window.addEventListener('keydown', (e) => {
+          const modalOpen = document.getElementById('gameModal').classList.contains('open');
+
+          if (e.key === 'Escape') {
+            if (modalOpen) this.closeGameModal();
+            return;
+          }
+
+          if (modalOpen) {
+            // Prevent page scrolling on gaming inputs
+            const mappedKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD'];
+            if (mappedKeys.includes(e.code)) {
+              e.preventDefault();
+            }
+
+            if (e.code === 'ArrowUp' || e.code === 'KeyW') GameEngineManager.handleInput('up', true);
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') GameEngineManager.handleInput('down', true);
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') GameEngineManager.handleInput('left', true);
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') GameEngineManager.handleInput('right', true);
+            if (e.code === 'Space') GameEngineManager.handleInput('actionA', true);
+            if (e.code === 'KeyB') GameEngineManager.handleInput('actionB', true);
+
+            if (e.code === 'KeyP') GameEngineManager.togglePause();
+            if (e.code === 'KeyR') GameEngineManager.restart();
+          }
+        });
+
+        window.addEventListener('keyup', (e) => {
+          const modalOpen = document.getElementById('gameModal').classList.contains('open');
+          if (modalOpen) {
+            if (e.code === 'ArrowUp' || e.code === 'KeyW') GameEngineManager.handleInput('up', false);
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') GameEngineManager.handleInput('down', false);
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') GameEngineManager.handleInput('left', false);
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') GameEngineManager.handleInput('right', false);
+            if (e.code === 'Space') GameEngineManager.handleInput('actionA', false);
+            if (e.code === 'KeyB') GameEngineManager.handleInput('actionB', false);
+          }
+        });
+      },
+
+      setupTouchListeners() {
+        const bindButton = (id, action) => {
+          const btn = document.getElementById(id);
+          if (!btn) return;
+
+          const press = (e) => {
+            e.preventDefault();
+            RetroAudio.init();
+            GameEngineManager.handleInput(action, true);
+          };
+
+          const release = (e) => {
+            e.preventDefault();
+            GameEngineManager.handleInput(action, false);
+          };
+
+          btn.addEventListener('touchstart', press, { passive: false });
+          btn.addEventListener('touchend', release, { passive: false });
+          btn.addEventListener('mousedown', press);
+          btn.addEventListener('mouseup', release);
+        };
+
+        bindButton('vBtnUp', 'up');
+        bindButton('vBtnDown', 'down');
+        bindButton('vBtnLeft', 'left');
+        bindButton('vBtnRight', 'right');
+        bindButton('vBtnActionA', 'actionA');
+        bindButton('vBtnActionB', 'actionB');
+      }
+    };
+
+    // -------------------------------------------------------------
+    // INITIALIZATION ON DOM READY
+    // -------------------------------------------------------------
+    document.addEventListener('DOMContentLoaded', () => {
+      GameApp.init();
+    });
+  </script>
+</body>
+</html>
